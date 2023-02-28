@@ -3,53 +3,47 @@ const axios=require('axios');
 const {Genre}=require('../db.js');
 const {API_KEY} = process.env;
 const router = Router();
+const userSchema = require("../models/user")
 
 router.get('/',async(req, res, next)=>{
-    // var genres=[]
-    // try {
-    //     genres=await Genre.findAll();
-    //     genres.sort(function(a,b){
-    //         if (a.name.toLowerCase() > b.name.toLowerCase()) {
-    //             return 1;
-    //           }
-    //           if (a.name.toLowerCase() < b.name.toLowerCase()) {
-    //             return -1;
-    //           }
-    //           return 0; 
-    //     })
-    //     res.json(genres)
-    // } catch (error) {
-    //     next(error)
-    // }
-
-      res.send('Soy get/users')
+    userSchema.find()
+    .then(data=>res.json(data))
+    .catch(error=>res.json({message: error}))
+   
 })
 
-router.put('/',(req, res, next)=>{
-    res.send('Soy put/genre')
+router.put('/:id',(req, res, next)=>{
+    const {id}=req.params;
+    userSchema.updateOne({_id:id},{ $set:req.body})
+    .then(data=>res.json(data))
+    .catch(error=>res.json({message: error}))
 })
 
-// router.post('/',async (req, res, next)=>{
-//     try {
-//         let genres=await axios.get('https://api.rawg.io/api/genres?key='+API_KEY+'&page_size=100');
-//         genres=genres.data.results.map(result=>{
-//             return{
-//                 id: result.id,
-//                 name: result.name,
-//                 image:result.image_background
-//             }
-//         })
-        
-//         res.json(await Genre.bulkCreate(genres));
-//     } catch (error) {
-//         next(error)
-//     }
+ router.post('/',async (req, res, next)=>{
 
-// })
+    const user=userSchema(req.body);
+    user.save()
+    .then(data=>res.json(data))
+    .catch(error=>res.json({message: error}))
+   
+ })
 
-router.delete('/',(req, res, next)=>{
-    res.send('Soy delete/genre')
+router.delete('/:id',(req, res, next)=>{
+    const {id}=req.params;
+    userSchema.remove({_id:id})
+    .then(data=>res.json(data))
+    .catch(error=>res.json({message: error}))
 })
+
+// Buscar usuario por Id
+router.get('/:id',async(req, res, next)=>{
+    const {id}=req.params;
+    userSchema.findById(id)
+    .then(data=>res.json(data))
+    .catch(error=>res.json({message: error}))
+   
+})
+
 
 
 module.exports = router;
